@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[project]
+name = "simple_veracrypt_container_interface"
+version = "0.1.0"
+description = "Wrapper code designed to mount and unmount containers made by the VeraCrypt application. Designed to be used alongside the `simple_async_command_manager` package."
+readme = "README.md"
+authors = [
+    {name = "Steven Broaddus", email = "Steven.Broaddus220@gmail.com"},
+]
+license = { file = "LICENSE" }
