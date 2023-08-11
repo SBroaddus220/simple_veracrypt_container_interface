@@ -8,7 +8,6 @@ Test cases for the VeracryptContainer class.
 
 import asyncio
 from pathlib import Path
-from simple_async_command_manager.commands.command_bases import SubprocessCommand
 
 import unittest
 from unittest import mock
@@ -31,6 +30,7 @@ class TestVeracryptSetup(unittest.TestCase):
         mount_letter = 'Z'
         self.veracrypt_container = VeracryptContainer(self.VERACRYPT_PATH, container_path, mount_letter)
     
+    
     # ****************
     # Prepare mount subprocess tests
     def test_prepare_mount_subprocess_command_setup(self):
@@ -52,7 +52,7 @@ class TestVeracryptSetup(unittest.TestCase):
             command = self.veracrypt_container.prepare_mount_subprocess()
 
             # Assert
-            self.assertEqual(command.command, expected_command)
+            self.assertEqual(command, expected_command)
     
     
     def test_prepare_mount_subprocess_incorrect_container_path(self):
@@ -74,14 +74,14 @@ class TestVeracryptSetup(unittest.TestCase):
             command2 = self.veracrypt_container.prepare_mount_subprocess()
 
             # Assert
-            self.assertEqual(command1.command, command2.command)
+            self.assertEqual(command1, command2)
     
     
     # ****************
     # Mount tests
     def test_mount_method(self):
         # Arrange
-        with mock.patch.object(SubprocessCommand, 'run', return_value=None) as mock_run, \
+        with mock.patch('simple_veracrypt_container_interface.utilities.utilities.run_command', return_value=None) as mock_run_command, \
             mock.patch('pathlib.Path.exists', return_value=True), \
             mock.patch('asyncio.create_subprocess_exec', new=mock.MagicMock()), \
             mock.patch('simple_veracrypt_container_interface.utilities.utilities.is_mounted', return_value=False):
@@ -89,20 +89,21 @@ class TestVeracryptSetup(unittest.TestCase):
             asyncio.run(self.veracrypt_container.mount())
 
             # Assert
-            mock_run.assert_called_once()
+            mock_run_command.assert_called_once()
     
     
     def test_mount_method_prepares_subprocess(self):
         # Arrange
-        mock_subprocess_command = mock.Mock()
-        mock_subprocess_command.run = AsyncMock()
-
+        mock_subprocess_command = mock.MagicMock()
+        mock_subprocess_command.__iter__.return_value = iter([])  # Mocks iterable property of command
+        
         # Manually sets the attribute to the required value to simulate prepare sync subprocess call
         def side_effect():
             self.veracrypt_container.subprocess_mount_command = mock_subprocess_command
             return mock_subprocess_command
 
-        with mock.patch('pathlib.Path.exists', return_value=True), \
+        with mock.patch('simple_veracrypt_container_interface.utilities.utilities.run_command', return_value=None) as mock_run_command, \
+            mock.patch('pathlib.Path.exists', return_value=True), \
             mock.patch.object(VeracryptContainer, 'prepare_mount_subprocess', side_effect=side_effect) as mock_prepare_mount_subprocess, \
             mock.patch('simple_veracrypt_container_interface.utilities.utilities.is_mounted', return_value=False):
 
@@ -111,7 +112,7 @@ class TestVeracryptSetup(unittest.TestCase):
 
             # Assert
             mock_prepare_mount_subprocess.assert_called_once()
-            mock_subprocess_command.run.assert_called_once()
+            mock_run_command.assert_called_once()
 
 
     # ****************
@@ -134,7 +135,7 @@ class TestVeracryptSetup(unittest.TestCase):
             command = self.veracrypt_container.prepare_dismount_subprocess()
 
             # Assert
-            self.assertEqual(command.command, expected_command)
+            self.assertEqual(command, expected_command)
     
     
     def test_prepare_dismount_subprocess_incorrect_container_path(self):
@@ -155,33 +156,34 @@ class TestVeracryptSetup(unittest.TestCase):
             command2 = self.veracrypt_container.prepare_dismount_subprocess()
 
             # Assert
-            self.assertEqual(command1.command, command2.command)
+            self.assertEqual(command1, command2)
     
     # ****************
     # Mount tests
     def test_dismount_method(self):
         # Arrange
-        with mock.patch.object(SubprocessCommand, 'run', return_value=None) as mock_run, \
+        with mock.patch('simple_veracrypt_container_interface.utilities.utilities.run_command', return_value=None) as mock_run_command, \
             mock.patch('pathlib.Path.exists', return_value=True), \
             mock.patch('asyncio.create_subprocess_exec', new=mock.MagicMock()):
             # Act
             asyncio.run(self.veracrypt_container.dismount())
 
             # Assert
-            mock_run.assert_called_once()
+            mock_run_command.assert_called_once()
     
     
     def test_dismount_method_prepares_subprocess(self):
         # Arrange
-        mock_subprocess_command = mock.Mock()
-        mock_subprocess_command.run = AsyncMock()
+        mock_subprocess_command = mock.MagicMock()
+        mock_subprocess_command.__iter__.return_value = iter([])  # Mocks iterable property of command
 
         # Manually sets the attribute to the required value to simulate prepare sync subprocess call
         def side_effect():
             self.veracrypt_container.subprocess_dismount_command = mock_subprocess_command
             return mock_subprocess_command
 
-        with mock.patch('pathlib.Path.exists', return_value=True), \
+        with mock.patch('simple_veracrypt_container_interface.utilities.utilities.run_command', return_value=None) as mock_run_command, \
+            mock.patch('pathlib.Path.exists', return_value=True), \
             mock.patch.object(VeracryptContainer, 'prepare_dismount_subprocess', side_effect=side_effect) as mock_prepare_dismount_subprocess:
 
             # Act
@@ -189,7 +191,7 @@ class TestVeracryptSetup(unittest.TestCase):
 
             # Assert
             mock_prepare_dismount_subprocess.assert_called_once()
-            mock_subprocess_command.run.assert_called_once()
+            mock_run_command.assert_called_once()
 
 
 

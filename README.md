@@ -3,8 +3,6 @@
 ## Description
 This project consists of a simple wrapper to interface with VeraCrypt containers to mount/unmount them.
 
-Designed to be used alongside the [`simple_async_command_manager`](https://github.com/SBroaddus220/simple_async_command_manager) package.
-
 ## Usage
 Example usage is documented in the provided examples.
 

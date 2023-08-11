@@ -14,18 +14,7 @@ files = [
 [package.extras]
 dev = ["jinja2"]
 
-[[package]]
-name = "simple-async-command-manager"
-version = "0.1.0"
-description = "Simple command manager and asyncio command queue handler with wraps for subprocesses and synchronous commands. Designed to be modular for easy profiling and monitoring."
-optional = false
-python-versions = "*"
-files = [
-    {file = "simple_async_command_manager-0.1.0-py3-none-any.whl", hash = "sha256:11d08f8a5fc28c3126082fdb8ae5a3a0d0c0fc46b57b3f3a203ca7548c4a214b"},
-    {file = "simple_async_command_manager-0.1.0.tar.gz", hash = "sha256:3524c95931de282362607228ddd9910557306de2169b5fb8f08ef3e9aaf0bf8d"},
-]
-
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "c9c80ea5a8c53bd9926ef753bee4b6c0a8f53c3807ddbc7c1b80f99e9d6d76a1"
+content-hash = "9b937c0cbaa6d1eeb8d4c580e947e55bcc3102643ae11a9d95ffa3b90f0139e6"

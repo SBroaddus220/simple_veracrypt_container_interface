@@ -7,8 +7,7 @@ This module contains the VeracryptContainer class, which is used to mount and di
 
 import logging
 from pathlib import Path
-from typing import Optional
-from simple_async_command_manager.commands.command_bases import SubprocessCommand
+from typing import Optional, List
 
 from simple_veracrypt_container_interface.utilities import utilities, exceptions
 
@@ -38,11 +37,11 @@ class VeracryptContainer:
         self.password = password
         self.keyfile_path = keyfile_path
         
-        #: SubprocessCommand object to mount the Veracrypt container.
-        self.subprocess_mount_command: Optional[SubprocessCommand] = None
+        #: Command to mount the Veracrypt container.
+        self.subprocess_mount_command: Optional[List[str]] = None
         
-        #: SubprocessCommand object to dismount the Veracrypt container.
-        self.subprocess_dismount_command: Optional[SubprocessCommand] = None
+        #: Command to dismount the Veracrypt container.
+        self.subprocess_dismount_command: Optional[List[str]] = None
         
         # Ensures executable exists
         logger.info(f"Checking if Veracrypt executable exists at `{self.executable_path}`.")
@@ -50,8 +49,8 @@ class VeracryptContainer:
             raise EnvironmentError(f"Veracrypt executable not found at `{self.executable_path}`.")
         
     
-    def prepare_mount_subprocess(self) -> SubprocessCommand:
-        """Prepares the SubprocessCommand to mount the Veracrypt container.
+    def prepare_mount_subprocess(self) -> List[str]:
+        """Prepares the command to mount the Veracrypt container.
 
         Raises:
             FileNotFoundError: If the Veracrypt container is not found.
@@ -59,7 +58,7 @@ class VeracryptContainer:
             AlreadyMountedError: If the Veracrypt container is already mounted.
 
         Returns:
-            SubprocessCommand: SubprocessCommand object to mount the Veracrypt container.
+            List[str]: Command to mount the Veracrypt container.
         """
         
         if not self.container_path.exists():
@@ -90,7 +89,7 @@ class VeracryptContainer:
         else:
             command.append("/tryemptypass")
         
-        self.subprocess_mount_command = SubprocessCommand(command)
+        self.subprocess_mount_command = command
         
         return self.subprocess_mount_command
         
@@ -103,18 +102,21 @@ class VeracryptContainer:
         """
         self.prepare_mount_subprocess()
         logger.info(f"Mounting Veracrypt container at `{self.container_path}`.")
-        await self.subprocess_mount_command.run(print_output=print_output)
+        try:
+            await utilities.run_command(self.subprocess_mount_command, print_output)
+        except RuntimeError as e:
+            logger.error(f"Error running mount command: {str(e)}")
         
         
-    def prepare_dismount_subprocess(self) -> SubprocessCommand:
-        """Prepares the SubprocessCommand to dismount the Veracrypt container.
+    def prepare_dismount_subprocess(self) -> List[str]:
+        """Prepares the command to dismount the Veracrypt container.
 
         Raises:
             FileNotFoundError: If the Veracrypt container is not found.
             AlreadyDismountedError: If the Veracrypt container is not mounted.
 
         Returns:
-            SubprocessCommand: SubprocessCommand object to dismount the Veracrypt container.
+            List[str]: Command to dismount the Veracrypt container.
         """
         if not self.container_path.exists():
             raise FileNotFoundError(f"Container at {self.container_path} not found.")
@@ -133,7 +135,7 @@ class VeracryptContainer:
             "/quit",
         ]
         
-        self.subprocess_dismount_command = SubprocessCommand(command)
+        self.subprocess_dismount_command = command
         
         return self.subprocess_dismount_command
     
@@ -146,7 +148,10 @@ class VeracryptContainer:
         """
         self.prepare_dismount_subprocess()
         logger.info(f"Dismounting Veracrypt container at `{self.container_path}`.")
-        await self.subprocess_dismount_command.run(print_output=print_output)
+        try:
+            await utilities.run_command(self.subprocess_mount_command, print_output)
+        except RuntimeError as e:
+            logger.error(f"Error running dismount command: {str(e)}")
     
     
 # **********
