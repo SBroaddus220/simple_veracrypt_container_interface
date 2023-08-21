@@ -149,7 +149,7 @@ class VeracryptContainer:
         self.prepare_dismount_subprocess()
         logger.info(f"Dismounting Veracrypt container at `{self.container_path}`.")
         try:
-            await utilities.run_command(self.subprocess_mount_command, print_output)
+            await utilities.run_command(self.subprocess_dismount_command, print_output)
         except RuntimeError as e:
             logger.error(f"Error running dismount command: {str(e)}")
     
