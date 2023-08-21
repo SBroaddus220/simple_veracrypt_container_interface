@@ -20,6 +20,8 @@ from simple_veracrypt_container_interface.utilities.utilities import available_d
 # ****************
 # Gets environment variable for executable path
 VERACRYPT_PATH = os.environ.get("VERACRYPT_PATH")
+if VERACRYPT_PATH is not None:
+    VERACRYPT_PATH = Path(VERACRYPT_PATH)
 
 # ****************
 @unittest.skipIf(VERACRYPT_PATH is None, "Veracrypt executable environment variable not set.")
