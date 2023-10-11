@@ -9,8 +9,7 @@ import logging
 from pathlib import Path
 from typing import Optional, List
 
-from simple_veracrypt_container_interface.utilities.utilities import is_mounted, run_command
-from simple_veracrypt_container_interface.utilities.exceptions import AlreadyMountedError, AlreadyDismountedError
+from simple_veracrypt_container_interface.utilities import utilities, exceptions
 
 # **********
 # Sets up logger
@@ -66,8 +65,8 @@ class VeracryptContainer:
         if self.keyfile_path and not self.keyfile_path.exists():
             raise FileNotFoundError(f"Keyfile at {self.keyfile_path} not found.")
         
-        if is_mounted(Path(f"{self.mount_letter}:\\")):
-            raise AlreadyMountedError(f"Drive {self.mount_letter} is already mounted.")
+        if utilities.is_mounted(Path(f"{self.mount_letter}:\\")):
+            raise exceptions.AlreadyMountedError(f"Drive {self.mount_letter} is already mounted.")
 
         logger.info(f"Preparing to mount Veracrypt container at `{self.container_path}`.")
         
@@ -103,7 +102,7 @@ class VeracryptContainer:
         self.prepare_mount_subprocess()
         logger.info(f"Mounting Veracrypt container at `{self.container_path}`.")
         try:
-            await run_command(self.subprocess_mount_command, print_output)
+            await utilities.run_command(self.subprocess_mount_command, print_output)
         except RuntimeError as e:
             logger.error(f"Error running mount command: {str(e)}")
         
@@ -120,8 +119,8 @@ class VeracryptContainer:
         """
         if not self.container_path.exists():
             raise FileNotFoundError(f"Container at {self.container_path} not found.")
-        if not is_mounted(Path(f"{self.mount_letter}:\\")):
-            raise AlreadyDismountedError(f"Drive {self.mount_letter} is not mounted.")
+        if not utilities.is_mounted(Path(f"{self.mount_letter}:\\")):
+            raise exceptions.AlreadyDismountedError(f"Drive {self.mount_letter} is not mounted.")
         
         logger.info(f"Preparing to dismount Veracrypt container at `{self.container_path}`.")
         
@@ -149,7 +148,7 @@ class VeracryptContainer:
         self.prepare_dismount_subprocess()
         logger.info(f"Dismounting Veracrypt container at `{self.container_path}`.")
         try:
-            await run_command(self.subprocess_dismount_command, print_output)
+            await utilities.run_command(self.subprocess_dismount_command, print_output)
         except RuntimeError as e:
             logger.error(f"Error running dismount command: {str(e)}")
     
