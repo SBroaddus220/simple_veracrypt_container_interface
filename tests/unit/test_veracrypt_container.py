@@ -131,7 +131,7 @@ class TestVeracryptSetup(unittest.TestCase):
 
         with mock.patch('asyncio.create_subprocess_exec', new=mock.MagicMock()) as mock_subprocess, \
             mock.patch('pathlib.Path.exists', return_value=True), \
-            mock.patch('simple_veracrypt_container_interface.utilities.utilities.is_mounted', return_value=True):
+            mock.patch('os.path.ismount', return_value=True):
             # Act
             command = self.veracrypt_container.prepare_dismount_subprocess()
 
@@ -150,8 +150,8 @@ class TestVeracryptSetup(unittest.TestCase):
     def test_prepare_dismount_subprocess_idempotence(self):
         # Arrange
         with mock.patch('pathlib.Path.exists', return_value=True), \
-            mock.patch('asyncio.create_subprocess_exec', new=mock.MagicMock()), \
-            mock.patch('simple_veracrypt_container_interface.utilities.utilities.is_mounted', return_value=True):
+            mock.patch('os.path.ismount', return_value=True), \
+            mock.patch('asyncio.create_subprocess_exec', new=mock.MagicMock()):
 
             # Act
             command1 = self.veracrypt_container.prepare_dismount_subprocess()
@@ -166,8 +166,8 @@ class TestVeracryptSetup(unittest.TestCase):
         # Arrange
         with mock.patch('simple_veracrypt_container_interface.utilities.utilities.run_command', return_value=None) as mock_run_command, \
             mock.patch('pathlib.Path.exists', return_value=True), \
-            mock.patch('asyncio.create_subprocess_exec', new=mock.MagicMock()), \
-            mock.patch('simple_veracrypt_container_interface.utilities.utilities.is_mounted', return_value=True):
+            mock.patch('os.path.ismount', return_value=True), \
+            mock.patch('asyncio.create_subprocess_exec', new=mock.MagicMock()):
             # Act
             asyncio.run(self.veracrypt_container.dismount())
 
